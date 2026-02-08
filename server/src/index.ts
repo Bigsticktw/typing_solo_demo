@@ -24,7 +24,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
 });
 
 const roomManager = new RoomManager();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '10000', 10);
 
 // 玩家 Socket ID 到玩家 ID 的映射
 const socketToPlayer = new Map<string, { playerId: string; roomId?: string }>();
