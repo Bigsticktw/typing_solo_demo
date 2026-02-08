@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased overflow-y-auto font-mono transition-colors duration-300;
+  }
+}
+
+/* Theme Definitions */
+@layer utilities {
+
+  /* Cyber Console */
+  [data-theme='cyber'] {
+    --bg-primary: #0d1117;
+    --text-primary: #00ff41;
+    --text-secondary: #008f11;
+    --accent: #00ff41;
+    --error: #ff0000;
+    --keyboard-bg: #161b22;
+    --key-bg: #21262d;
+    --key-active: #00ff41;
+    --key-text: #00ff41;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Paper White */
+  [data-theme='paper'] {
+    --bg-primary: #fdf6e3;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --accent: #268bd2;
+    --error: #dc322f;
+    --keyboard-bg: #eee8d5;
+    --key-bg: #fdf6e3;
+    --key-active: #268bd2;
+    --key-text: #333333;
+    font-family: 'Georgia', serif;
+  }
+
+  /* Retro Click */
+  [data-theme='retro'] {
+    --bg-primary: #a8a8a8;
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --accent: #d35f5f;
+    --error: #b71c1c;
+    --keyboard-bg: #8a8a8a;
+    --key-bg: #e0e0d1;
+    /* Beige keycap */
+    --key-active: #ffffff;
+    --key-text: #1a1a1a;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Neon Night */
+  [data-theme='neon'] {
+    --bg-primary: #1a0b2e;
+    --text-primary: #ff00ff;
+    --text-secondary: #00ffff;
+    --accent: #ff00ff;
+    --error: #ff3333;
+    --keyboard-bg: #2d1b4e;
+    --key-bg: #432c7a;
+    --key-active: #00ffff;
+    --key-text: #ffffff;
+    font-family: 'Segoe UI', sans-serif;
+  }
+}
