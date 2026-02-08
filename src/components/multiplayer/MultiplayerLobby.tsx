@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useMultiplayerStore } from '../../store/useMultiplayerStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { Users, Zap, Plus, RefreshCw, Wifi, WifiOff } from 'lucide-react';
-import clsx from 'clsx';
 import type { GameConfig } from '../../../server/src/types';
 
 export function MultiplayerLobby() {
