@@ -16,10 +16,29 @@ const app = express();
 app.use(cors());
 
 const httpServer = createServer(app);
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://*.vercel.app',
+    ];
+
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
     cors: {
-        origin: '*', // 開發環境允許所有來源，生產環境應設定具體域名
-        methods: ['GET', 'POST']
+        origin: (origin, callback) => {
+            // 允許沒有 origin 的請求（例如移動端應用）
+            if (!origin) return callback(null, true);
+
+            // 檢查是否在允許列表中或匹配 vercel.app 域名
+            if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        methods: ['GET', 'POST'],
+        credentials: true
     }
 });
 

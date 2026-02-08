@@ -12,7 +12,7 @@ export type MultiplayerSocket = Socket<ServerToClientEvents, ClientToServerEvent
 
 export class SocketService {
     private socket: MultiplayerSocket | null = null;
-    private serverUrl: string = 'http://localhost:3001';
+    private serverUrl: string = import.meta.env.VITE_WEBSOCKET_URL || 'http://localhost:3001';
 
     /**
      * 連接到伺服器
