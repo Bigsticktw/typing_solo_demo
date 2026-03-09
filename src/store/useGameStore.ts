@@ -69,6 +69,8 @@ interface GameState {
     recordCharAppeared: () => void;
     getKeyStatistics: () => { keyCount: Record<string, number>; keyErrors: Record<string, number> };
     clearHistory: () => void;
+    wantsRestart: boolean;
+    setWantsRestart: (wants: boolean) => void;
 }
 
 export const useGameStore = create<GameState>()(
@@ -115,6 +117,7 @@ export const useGameStore = create<GameState>()(
                     keystrokeTimings: [],
                     currentSessionKeyCount: {},
                     currentSessionKeyErrors: {},
+                    wantsRestart: false,
                 });
             },
 
@@ -169,7 +172,8 @@ export const useGameStore = create<GameState>()(
                 charAppearedAt: 0,
                 keyLatencies: {},
                 keyErrors: {},
-                keystrokeTimings: []
+                keystrokeTimings: [],
+                wantsRestart: false,
             }),
 
             restartGame: () => {
@@ -284,7 +288,10 @@ export const useGameStore = create<GameState>()(
                 return { timeLeft: state.timeLeft - 1 };
             }),
 
-            clearHistory: () => set({ gameHistory: [] })
+            clearHistory: () => set({ gameHistory: [] }),
+
+            wantsRestart: false,
+            setWantsRestart: (wants) => set({ wantsRestart: wants })
         }),
         {
             name: 'typing-game-storage',

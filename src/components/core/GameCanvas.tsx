@@ -12,15 +12,17 @@ export const GameCanvas = () => {
 
     const {
         status, score, errors, totalKeystrokes, targetChar, timeLeft,
-        setTargetChar, tickTimer, startGame, restartGame, feedback, inputCount, startTime,
+        setTargetChar, tickTimer, startGame, resetGame, feedback, inputCount, startTime,
         endGame, // 新增
-        getKeyStatistics // 新增：獲取統計資料
+        getKeyStatistics, // 新增：獲取統計資料
+        wantsRestart, setWantsRestart
     } = useGameStore();
     const { gameMode, caseMode, activeRows, handMode, selectedKeys, useCustomKeys } = useSettingsStore();
 
     const inputRef = useRef<HTMLInputElement>(null);
     const [capsLockOn, setCapsLockOn] = useState(false);
     const [upcomingChars, setUpcomingChars] = useState<string[]>([]);
+    const [countdown, setCountdown] = useState<number | null>(null);
 
     // 語系衝突偵測
 
@@ -55,16 +57,20 @@ export const GameCanvas = () => {
         return () => window.removeEventListener('click', focusInput);
     }, []);
 
-    // Enter 快捷鍵開始遊戲
+    // Enter 快捷鍵開始 / 重製遊戲
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Enter' && status === 'idle') {
-                handleStart();
+            if (e.key === 'Enter') {
+                if (status === 'idle' && countdown === null) {
+                    handleStart();
+                } else if (status === 'playing') {
+                    handleRestart();
+                }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [status]);
+    }, [status, countdown]);
 
     // CapsLock & Language Conflict detection
     useEffect(() => {
@@ -121,23 +127,42 @@ export const GameCanvas = () => {
         }
     }, [inputCount, status, feedback]); // 注意：這裡不加 upcomingChars 作為依賴，避免遞迴
 
-    const handleStart = () => {
+    const startActualGame = useCallback(() => {
         startGame();
         const first = generateChar();
         const second = generateChar();
         const third = generateChar();
         setTargetChar(first);
         setUpcomingChars([second, third]);
-    };
+    }, [startGame, generateChar, setTargetChar]);
 
-    const handleRestart = () => {
-        restartGame();
-        const first = generateChar();
-        const second = generateChar();
-        const third = generateChar();
-        setTargetChar(first);
-        setUpcomingChars([second, third]);
-    };
+    const handleStart = useCallback(() => {
+        setCountdown(prev => prev !== null ? prev : 3);
+    }, []);
+
+    const handleRestart = useCallback(() => {
+        resetGame();
+        setCountdown(prev => prev !== null ? prev : 3);
+    }, [resetGame]);
+
+    useEffect(() => {
+        if (countdown === null) return;
+        if (countdown > 0) {
+            const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+            return () => clearTimeout(timer);
+        } else {
+            setCountdown(null);
+            startActualGame();
+        }
+    }, [countdown, startActualGame]);
+
+    // Handle restart from ResultScreen
+    useEffect(() => {
+        if (wantsRestart && status === 'idle' && countdown === null) {
+            setWantsRestart(false);
+            handleStart();
+        }
+    }, [wantsRestart, status, countdown, setWantsRestart, handleStart]);
 
     const accuracy = totalKeystrokes > 0 ? Math.round((score / totalKeystrokes) * 100) : 100;
     const displayTime = timeLeft === Infinity ? '∞' : timeLeft;
@@ -183,7 +208,21 @@ export const GameCanvas = () => {
             {/* Main Target Display */}
             <div className="flex-1 flex items-center justify-center relative min-h-[180px] w-full">
 
-                {status === 'idle' && (
+                {countdown !== null && (
+                    <div className="flex items-center justify-center">
+                        <motion.div
+                            key={countdown}
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1.5, opacity: 1 }}
+                            exit={{ scale: 2, opacity: 0 }}
+                            className="text-[12rem] font-black filter drop-shadow-[0_0_20px_var(--accent)] text-[var(--accent)] z-50"
+                        >
+                            {countdown}
+                        </motion.div>
+                    </div>
+                )}
+
+                {status === 'idle' && countdown === null && (
                     <div className="flex items-center gap-12">
                         <div className="flex flex-col gap-4 text-right">
                             <div>

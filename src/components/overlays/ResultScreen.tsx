@@ -3,12 +3,12 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { motion } from 'framer-motion';
 import { RotateCcw, Home, Target } from 'lucide-react';
 import { KEYBOARD_LAYOUT } from '../../utils/layoutMaps';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 export const ResultScreen = () => {
     const {
         score, errors, totalKeystrokes, startTime,
-        resetGame, restartGame, setTargetChar,
+        resetGame,
         keyLatencies, keyErrors
     } = useGameStore();
 
@@ -89,15 +89,26 @@ export const ResultScreen = () => {
     };
 
     const handleRestart = () => {
-        restartGame();
-        setTargetChar('');
+        resetGame();
+        useGameStore.getState().setWantsRestart(true);
     };
+
+    // Enter 觸發再來一次
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Enter') {
+                handleRestart();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []); // remove handleRestart from dep array as it is not a useCallback. Actually, we can omit deps since it's just event listener. No, better to leave empty.
 
     const handleWeakKeyTraining = () => {
         if (weakestKeys.length > 0) {
             setSelectedKeys(weakestKeys);
-            restartGame();
-            setTargetChar('');
+            resetGame();
+            useGameStore.getState().setWantsRestart(true);
         }
     };
 
